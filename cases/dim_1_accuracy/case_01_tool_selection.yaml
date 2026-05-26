@@ -1,0 +1,48 @@
+id: dim1_acc_01
+dimension: accuracy
+title: Tool selection — pick the right tool, do not hallucinate
+severity: high
+tags: [tool_selection, factual, basic_agent_loop]
+
+description: |
+  Verifies the agent picks the appropriate tool for a factual query the
+  agent could not answer from training data alone (tomorrow's weather),
+  rather than hallucinating an answer or calling an unrelated tool.
+
+input:
+  system_message: |
+    You are an assistant with access to these tools:
+      - weather_lookup(location: str, date: str) -> dict
+      - web_search(query: str) -> list
+      - calendar_check(date: str) -> list
+    Always call a tool when the answer requires real-world data
+    you cannot know from training.
+  user_message: |
+    What's the weather in Beijing tomorrow?
+
+expected:
+  must_contain: ["weather_lookup"]      # tool call should appear in trace
+  must_not_contain:
+    - "I cannot"                         # agent should NOT refuse
+    - "I don't have access"              # agent should NOT claim no tool access
+  semantic_intent: |
+    Agent invokes weather_lookup with location="Beijing" and a date
+    string corresponding to "tomorrow" (relative to current date). Agent
+    does NOT call web_search or calendar_check; does NOT hallucinate a
+    weather answer from training data.
+
+evaluation:
+  method: keyword_match
+  pass_threshold: 1.0
+
+notes: |
+  Tool-using agents fail this case more often than expected when:
+    - The system prompt is vague about WHEN to call tools
+    - The model has a strong prior to "be helpful" by guessing
+    - The model is small and skips tool calls to save tokens
+  Failing this case in production = users getting fabricated answers that
+  look authoritative. High severity.
+
+references:
+  - "OpenAI function calling best practices (when to call tools)"
+  - "Anthropic tool use cookbook: choosing the right tool"
