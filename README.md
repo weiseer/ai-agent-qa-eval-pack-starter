@@ -39,17 +39,18 @@ blocks and OpenAI `tool_calls` arrays.
 
 ## What's in the full pack ($49)
 
-The **AI Agent QA Eval Pack v1.0** ships **20 cases** across 6 dimensions:
+The **AI Agent QA Eval Pack v1.1** ships **23 cases** across 6 dimensions:
 
-- 3 cases per dimension (accuracy / safety / hallucination / cost_efficiency)
-- 4 cases per dimension (edge_cases / prompt_injection — weighted for
-  OWASP LLM01 coverage)
-- Hallucination dimension (3 cases — workflow checks: did the agent
-  actually call the tool, or fake a recall?) — NOT in this starter
+- 3 cases per dimension (accuracy / safety)
+- 4 cases per dimension (edge_cases / prompt_injection / hallucination — weighted for OWASP LLM01 coverage)
+- 5 cases for cost_efficiency (production-dogfood findings: cost-cap enforcement + parallel-worker diversity planning, v1.1 additions)
+- Hallucination dimension adds case_04 predicted-vs-actual drift monitoring (v1.1)
 - Customer-delivered Markdown report template
-- Pro tier preview (Standard / Pro waitlist v1.1+)
+- Pro tier preview (Standard / Pro waitlist v2+)
 
 Get the full pack: **`https://weiseer.gumroad.com/l/dcipxt`**
+
+For 中国大陆 readers — if Gumroad checkout fails due to region/card mismatch (common with VPN + 国内卡 Stripe 风控), email **wei@weiseer.com** for 微信/支付宝 payment. Same $49 (≈ ¥350 at current PBOC rate), manual fulfillment within 24h, same 7-day refund policy.
 
 ## License
 
