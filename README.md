@@ -37,19 +37,22 @@ For trace-based cases (most of these), your agent must expose its
 tool-call sequence (tool name + args). Native in Anthropic `tool_use`
 blocks and OpenAI `tool_calls` arrays.
 
-## What's in the full pack ($49)
+## What's in the full pack ($49 / $29 launch promo)
 
-The **AI Agent QA Eval Pack v1.0** ships **20 cases** across 6 dimensions:
+The **AI Agent QA Eval Pack v1.1** ships **23 cases** across 6 dimensions:
 
-- 3 cases per dimension (accuracy / safety / hallucination / cost_efficiency)
-- 4 cases per dimension (edge_cases / prompt_injection — weighted for
-  OWASP LLM01 coverage)
-- Hallucination dimension (3 cases — workflow checks: did the agent
-  actually call the tool, or fake a recall?) — NOT in this starter
+- 3 cases per dimension (accuracy / safety)
+- 4 cases per dimension (edge_cases / prompt_injection / hallucination — weighted for OWASP LLM01 coverage)
+- 5 cases for cost_efficiency (production-dogfood findings: cost-cap enforcement + parallel-worker diversity planning, v1.1 additions)
+- Hallucination dimension adds case_04 predicted-vs-actual drift monitoring (v1.1)
 - Customer-delivered Markdown report template
-- Pro tier preview (Standard / Pro waitlist v1.1+)
+- Pro tier preview (Standard / Pro waitlist v2+)
 
-Get the full pack: **`https://weiseer.gumroad.com/l/dcipxt`**
+🎉 **Launch promo through 2026-06-03 22:00 BJT**: $20 off with code `LAUNCH7` at checkout (effective $29).
+
+Get the full pack: **`https://weiseer.gumroad.com/l/dcipxt`** (use code `LAUNCH7` for promo)
+
+For 中国大陆 readers — if Gumroad checkout fails due to region/card mismatch (common with VPN + 国内卡 Stripe 风控), visit **https://dl.weiseer.com/pay** for 微信/支付宝 payment. Same content, manual fulfillment within 24h, same 7-day refund policy. Launch promo also reflected on that page (¥199 vs ¥350 baseline).
 
 ## License
 
