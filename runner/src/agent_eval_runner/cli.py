@@ -16,6 +16,7 @@ from .evaluators import evaluate
 from .loader import load_cases
 from .models import AgentResult
 from .report import markdown_report, terminal_summary
+from . import scorecard as _scorecard_mod
 
 
 def _run(args: argparse.Namespace) -> int:
@@ -60,6 +61,34 @@ def _list(args: argparse.Namespace) -> int:
     return 0
 
 
+def _scorecard(args: argparse.Namespace) -> int:
+    cases = load_cases(args.cases)
+    if not cases:
+        print("no cases found", file=sys.stderr)
+        return 2
+    try:
+        adapter = resolve_adapter(args.adapter)
+    except Exception as e:
+        print(f"adapter error: {e}", file=sys.stderr)
+        return 2
+    results = []
+    for c in cases:
+        try:
+            out = adapter(c)
+            if not isinstance(out, AgentResult):
+                raise TypeError("adapter must return AgentResult")
+        except Exception as e:
+            out = AgentResult(output_text=f"<adapter error: {e}>")
+        results.append(evaluate(c, out))
+    card = _scorecard_mod.compute(results)
+    print(_scorecard_mod.render(card))
+    if args.badge:
+        with open(args.badge, "w", encoding="utf-8") as f:
+            f.write(_scorecard_mod.badge_markdown(card) + "\n")
+        print(f"\nbadge markdown written: {args.badge}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="agent-eval", description="Run AI Agent QA Eval Pack against your agent.")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -75,6 +104,12 @@ def main(argv: list[str] | None = None) -> int:
     pl = sub.add_parser("list", help="list available cases")
     pl.add_argument("--cases", required=True)
     pl.set_defaults(func=_list)
+
+    psc = sub.add_parser("scorecard", help="grade your agent + emit a shareable README badge")
+    psc.add_argument("--cases", required=True)
+    psc.add_argument("--adapter", required=True, help="module:func | openai:MODEL | anthropic:MODEL")
+    psc.add_argument("--badge", help="write the Markdown badge snippet to this file")
+    psc.set_defaults(func=_scorecard)
 
     args = p.parse_args(argv)
     return args.func(args)
