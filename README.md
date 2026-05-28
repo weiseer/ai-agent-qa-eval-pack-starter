@@ -7,8 +7,8 @@
 **⭐ If this is useful, star the repo** — it's the only signal that tells me
 which dimensions to expand next, and it helps other agent builders find it.
 
-**📬 Want new cases as they ship?** Click **Watch → Custom → Releases**
-(top-right) — new eval cases drop as tagged releases.
+**📬 Want new cases + the 6-dimension cheatsheet as they ship?**
+Drop your email (no spam, just new eval cases): **https://dl.weiseer.com/cases**
 
 ---
 
