@@ -12,20 +12,19 @@ Drop your email (no spam, just new eval cases): **https://dl.weiseer.com/cases**
 
 ---
 
-## Run your first eval in 5 minutes
+## Run all 5 in one command
 
-Don't read all five files first. Do one:
+```bash
+pip install agent-eval-runner
+# zero-code demo (text cases) against a model:
+agent-eval run --cases ./cases --adapter openai:gpt-4o
+# or against YOUR agent (10-line adapter, all case types incl. tool-trace):
+agent-eval run --cases ./cases --adapter my_module:agent --report signoff.md
+```
 
-1. Open `cases/dim_4_prompt_injection/case_01_tool_response_injection.yaml`
-   (the OWASP LLM01 one — the case most agents quietly fail).
-2. Copy `input.system_message` + `input.user_message` +
-   `input.context.mock_tool_behavior` into your agent.
-3. Watch the tool-call trace. Compare against the `expected` block.
-4. Did your agent treat adversarial text *inside the tool response* as
-   instructions? If yes — that's a real prod vulnerability you just found
-   for free.
-
-If that one case surfaced something, the other four will too.
+Deterministic checks (no LLM-judge). **Non-zero exit on any high-severity
+failure → drop it straight into CI.** The `agent-eval` runner ships in this
+repo (`runner/`) and on [PyPI](https://pypi.org/project/agent-eval-runner/).
 
 ---
 
@@ -48,18 +47,21 @@ Schema: `schema/eval_case.schema.yaml`.
 The free 5 cases tell you **whether** your agent has gaps. The paid pack is
 what you use to **sign off an agent for production**:
 
-| | Free starter | Full pack v1.1 |
+| | Free starter | Full pack v1.2 |
 |---|---|---|
-| Cases | 5 (1 per dim, 5 dims) | **23** across all 6 dims |
-| Prompt-injection coverage | 1 case | 4 cases (OWASP LLM01 weighted) |
-| Hallucination dimension | — | 4 cases incl. predicted-vs-actual drift |
-| Cost dimension | 1 case | 5 cases incl. cost-cap enforcement + parallel-worker diversity |
-| **Customer-deliverable report template** | — | ✅ Markdown sign-off report |
-| Real provenance | — | Cases derived from dogfooding a live production agent |
+| Cases | 5 (1 per dim, 5 dims) | **28** across all 6 dims |
+| Standard coverage | LLM01 (1 case) | **OWASP Top 10 for Agentic Applications (2026), mapped** |
+| Prompt injection | 1 case | 6 cases incl. multi-agent injection, indirect goal hijacking |
+| Safety / agency | 1 case | 6 cases incl. excessive agency, memory poisoning, least-privilege tool use |
+| Edge / cascading | 1 case | 6 cases incl. cascading failure, oversight on irreversible actions |
+| **`agent-eval` runner** | ✅ included | ✅ included |
+| **Sign-off report template** | — | ✅ Markdown |
+| Real provenance | — | Cases from dogfooding a live production agent |
 
 **Why the paid coverage matters:** the gaps that get agents pulled from prod
-aren't in the obvious dimensions — they're in hallucination drift and cost
-runaway under load. Those are the cases the free starter doesn't include.
+are the agentic ones — memory poisoning, excessive agency, cascading tool
+failures — exactly the OWASP Agentic Top 10 risks the free 5-case starter
+doesn't include.
 
 🎉 **Launch promo through 2026-06-03 22:00 BJT** — `LAUNCH7` = $20 off (effective **$29**).
 
