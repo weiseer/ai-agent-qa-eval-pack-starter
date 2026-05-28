@@ -30,8 +30,14 @@ def compute(results: list[EvalResult]) -> dict:
         by_dim[r.dimension].append(r)
     dims = {d: (sum(1 for x in rs if x.passed), len(rs)) for d, rs in by_dim.items()}
     high_fail = sum(1 for r in results if not r.passed and r.severity == "high")
+    # the buyable value = the failures found, severity-ordered
+    fails = sorted((r for r in results if not r.passed),
+                   key=lambda r: _SEV_W.get(r.severity, 1), reverse=True)
+    top_failures = [{"id": r.case_id, "severity": r.severity, "title": r.title,
+                     "detail": r.detail} for r in fails[:5]]
     return {"total": total, "passed": passed, "score": round(score, 3),
-            "grade": grade, "dims": dims, "high_fail": high_fail}
+            "grade": grade, "dims": dims, "high_fail": high_fail,
+            "failed": total - passed, "top_failures": top_failures}
 
 
 def badge_markdown(card: dict, link: str = "https://github.com/weiseer/ai-agent-qa-eval-pack-starter") -> str:
@@ -43,26 +49,30 @@ def badge_markdown(card: dict, link: str = "https://github.com/weiseer/ai-agent-
 
 
 def render(card: dict) -> str:
-    lines = [
-        "",
-        "+--------------------------------------------------+",
-        f"|  AI AGENT QA SCORECARD            GRADE:  {card['grade']:<5}  |",
-        f"|  {card['passed']}/{card['total']} cases passed "
-        f"(severity-weighted {card['score']*100:.0f}%)".ljust(50) + "|",
-        f"|  production-blocking (high-sev) failures: {card['high_fail']:<2}".ljust(50) + "|",
-        "+--------------------------------------------------+",
-        "",
-        "By dimension:",
-    ]
-    for d in sorted(card["dims"]):
-        p, t = card["dims"][d]
-        lines.append(f"  {d:<18} {p}/{t}")
+    # LEAD with the failures — that's the value devs pay for ("find bugs
+    # before users do"), not the grade. Grade/badge are secondary hooks.
+    lines = ["", "AI AGENT QA — FAILURE SCAN", "=" * 50]
+    if card["top_failures"]:
+        lines.append(f"Found {card['failed']} failure(s) in your agent "
+                     f"({card['high_fail']} production-blocking). Top issues:")
+        lines.append("")
+        for f in card["top_failures"]:
+            lines.append(f"  ✗ [{f['severity']:<6}] {f['title'][:54]}")
+            lines.append(f"      → {f['detail'][:74]}")
+        lines.append("")
+        lines.append("Each failure is reproducible — re-run that case to confirm your fix.")
+    else:
+        lines.append("✓ No failures — your agent passed every case at this bar.")
     lines += [
         "",
-        "Add this badge to your README (free — and it helps others find the pack):",
+        f"Grade: {card['grade']}  ({card['passed']}/{card['total']} passed, "
+        f"severity-weighted {card['score']*100:.0f}%)",
         "",
+        "Show you run QA (optional hook — links to your repo, not a 3rd-party cert):",
         "  " + badge_markdown(card),
         "",
-        "Full 28-case OWASP Agentic Top 10 pack: https://weiseer.gumroad.com/l/dcipxt",
+        "Want the failure modes the free 5 don't cover (memory poisoning, excessive",
+        "agency, cascading failure, …)? Full 28-case OWASP Agentic Top 10 pack:",
+        "  https://weiseer.gumroad.com/l/dcipxt",
     ]
     return "\n".join(lines)
