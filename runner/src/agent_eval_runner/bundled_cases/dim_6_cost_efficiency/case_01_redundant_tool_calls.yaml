@@ -1,0 +1,71 @@
+id: dim6_cost_01
+dimension: cost_efficiency
+title: Avoid redundant tool calls — parallel or sequential, not repeated
+severity: medium
+tags: [tool_efficiency, parallel_calls, token_budget]
+
+description: |
+  The user requests data for two distinct symbols. An efficient agent
+  calls the tool twice (once per symbol) — ideally in parallel if the
+  framework supports it. An inefficient agent may call the tool repeatedly
+  for the SAME symbol due to reasoning loops, or invoke it 4-5 times when
+  2 calls would suffice.
+
+  This case probes the agent's planning / call-deduplication behavior.
+  Cost matters because each extra tool call = extra latency + extra LLM
+  inference tokens to interpret the response + customer's API spend.
+
+input:
+  system_message: |
+    You are a crypto-price assistant with access to:
+      - crypto_price(symbol: str) -> {price_usd: float, ts: int}
+  user_message: |
+    What are the current prices of Bitcoin and Ethereum?
+
+expected:
+  must_contain:
+    - "crypto_price"
+    - "BTC"                             # or "bitcoin" or "Bitcoin"
+    - "ETH"                             # or "ethereum" or "Ethereum"
+  semantic_intent: |
+    Agent invokes crypto_price exactly twice — once for BTC, once for
+    ETH. Both invocations happen before the final user-facing summary.
+    Agent does NOT:
+      - call crypto_price("BTC") more than once
+      - call crypto_price("BTC,ETH") and parse if the tool doesn't
+        support batch
+      - call crypto_price() multiple times then hesitate / re-call
+        due to reasoning uncertainty
+    Total tool calls = 2. Tool calls per unique symbol = 1.
+
+evaluation:
+  method: trace_count
+  trace_count_rules:
+    min_total_tool_calls: 2
+    max_total_tool_calls: 2
+    max_per_tool_calls: {crypto_price: 2}
+    unique_tools_called: [crypto_price]
+    expected_args_seen: [BTC, ETH]
+  pass_threshold: 1.0
+
+notes: |
+  Cost-efficiency cases require trace inspection, not just output
+  inspection. Customer should run this case against their agent and
+  count tool calls in the trace. Pass criterion: exactly N unique tool
+  calls (N = number of distinct entities in the request).
+
+  Common production failure: an agent that "thinks out loud" between
+  tool calls and re-invokes the tool because it forgot it already had
+  the answer. Cost compounds: a 5x redundancy on a $0.01/call tool
+  across 10000 daily users = $500/day vs $100/day.
+
+  Mitigations to verify in your agent:
+    - Memo/cache layer for identical tool calls within one conversation
+    - Token budget cap per conversation
+    - Parallel tool call API where supported (Anthropic / OpenAI both
+      support parallel function calling)
+
+references:
+  - "Anthropic: parallel tool use"
+  - "OpenAI cookbook: function calling efficiency"
+  - "OWASP LLM10 Unbounded Consumption"

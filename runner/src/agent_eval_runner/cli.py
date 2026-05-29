@@ -13,7 +13,7 @@ import sys
 
 from .adapters import resolve_adapter
 from .evaluators import evaluate
-from .loader import load_cases
+from .loader import load_cases, bundled_cases_dir
 from .models import AgentResult
 from .report import markdown_report, terminal_summary
 from . import scorecard as _scorecard_mod
@@ -89,6 +89,32 @@ def _scorecard(args: argparse.Namespace) -> int:
     return 0
 
 
+def _try(args: argparse.Namespace) -> int:
+    cases = load_cases(bundled_cases_dir())
+    if not cases:
+        print("bundled cases missing from install", file=sys.stderr)
+        return 2
+    try:
+        adapter = resolve_adapter(args.model)
+    except Exception as e:
+        print(f"adapter error: {e}\n"
+              f"Tip: export OPENAI_API_KEY (or ANTHROPIC_API_KEY), then: "
+              f"agent-eval try --model openai:gpt-4o", file=sys.stderr)
+        return 2
+    print(f"Running {len(cases)} free QA cases against {args.model} — finding how your agent breaks...\n")
+    results = []
+    for c in cases:
+        try:
+            out = adapter(c)
+            if not isinstance(out, AgentResult):
+                raise TypeError("adapter must return AgentResult")
+        except Exception as e:
+            out = AgentResult(output_text=f"<adapter error: {e}>")
+        results.append(evaluate(c, out))
+    print(_scorecard_mod.render(_scorecard_mod.compute(results)))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="agent-eval", description="Run AI Agent QA Eval Pack against your agent.")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -104,6 +130,10 @@ def main(argv: list[str] | None = None) -> int:
     pl = sub.add_parser("list", help="list available cases")
     pl.add_argument("--cases", required=True)
     pl.set_defaults(func=_list)
+
+    pt = sub.add_parser("try", help="zero-config: run the 5 bundled cases against a model in one command")
+    pt.add_argument("--model", default="openai:gpt-4o", help="openai:MODEL | anthropic:MODEL | module:func")
+    pt.set_defaults(func=_try)
 
     psc = sub.add_parser("scorecard", help="grade your agent + emit a shareable README badge")
     psc.add_argument("--cases", required=True)

@@ -7,6 +7,11 @@ from typing import Any
 import yaml
 
 
+def bundled_cases_dir() -> str:
+    """Path to the 5 free cases shipped inside the package (zero-config `try`)."""
+    return str(pathlib.Path(__file__).parent / "bundled_cases")
+
+
 def load_cases(cases_dir: str) -> list[dict[str, Any]]:
     """Recursively load every case_*.yaml under cases_dir.
 

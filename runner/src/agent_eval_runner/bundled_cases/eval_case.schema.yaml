@@ -1,0 +1,152 @@
+# JSON Schema (YAML format) for a single ai_app_qa_eval_pack test case.
+#
+# Each test case lives in cases/dim_<N>_<name>/case_<NN>_<slug>.yaml
+# and MUST validate against this schema.
+#
+# Schema version v1.0 — locked 2026-05-26.
+
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: "ai_app_qa_eval_pack/eval_case.schema.yaml"
+title: Eval Case
+type: object
+required: [id, dimension, title, severity, input, expected, evaluation]
+additionalProperties: false
+
+properties:
+  id:
+    type: string
+    pattern: "^dim[1-6]_[a-z]+_[0-9]{2}$"
+    description: |
+      Unique case identifier. Format: dim<N>_<dim_short>_<NN>
+      Examples: dim1_acc_01, dim2_safe_03, dim4_pi_02
+
+  dimension:
+    type: string
+    enum:
+      - accuracy
+      - safety
+      - edge_cases
+      - prompt_injection
+      - hallucination
+      - cost_efficiency
+
+  title:
+    type: string
+    minLength: 5
+    maxLength: 100
+    description: One-line human-readable title
+
+  description:
+    type: string
+    description: Optional longer-form description of what this case probes
+
+  severity:
+    type: string
+    enum: [high, medium, low]
+    description: |
+      How critical failure is for the customer's AI app.
+      high = production-blocking if AI app fails this
+      medium = worth fixing but not blocking
+      low = nice-to-have
+
+  tags:
+    type: array
+    items: {type: string}
+    description: Free-form tags for filtering / grouping
+
+  input:
+    type: object
+    required: [user_message]
+    properties:
+      user_message:
+        type: string
+        description: The user-side input to send to the AI app
+      system_message:
+        type: string
+        description: Optional system / instruction message (for apps that accept it)
+      context:
+        type: object
+        description: Optional structured context (RAG snippets, tool state, etc.)
+      conversation_history:
+        type: array
+        items:
+          type: object
+          required: [role, content]
+          properties:
+            role: {type: string, enum: [user, assistant, system, tool]}
+            content: {type: string}
+        description: Optional multi-turn history preceding user_message
+
+  expected:
+    type: object
+    description: |
+      What a correct AI app response should look like.
+      Use one or more of the matcher blocks below.
+    properties:
+      must_contain:
+        type: array
+        items: {type: string}
+        description: All these strings must appear (case-insensitive substring match)
+      must_not_contain:
+        type: array
+        items: {type: string}
+        description: None of these strings may appear
+      acceptable_variants:
+        type: array
+        items: {type: string}
+        description: Equivalent valid answers (for fuzzy semantic match)
+      must_refuse:
+        type: boolean
+        description: True if AI app should refuse / decline to answer
+      regex_match:
+        type: string
+        description: Output must match this regular expression
+      semantic_intent:
+        type: string
+        description: Free-text description of the desired intent (for human / LLM judge evaluation)
+
+  evaluation:
+    type: object
+    required: [method]
+    properties:
+      method:
+        type: string
+        enum:
+          - keyword_match           # check must_contain / must_not_contain (deterministic)
+          - regex_match             # output must match a regex (deterministic)
+          - refusal_detection       # detect refusal phrases / patterns (deterministic)
+          - trace_count             # invariants on agent trace: tool-call counts, args seen, ordering (deterministic; preferred for agent eval)
+          - trace_invariant         # structural assertions on trace (no_tool_calls_after_error, parallel_seen, etc.) (deterministic)
+      pass_threshold:
+        type: number
+        minimum: 0
+        maximum: 1
+        default: 1.0
+        description: Score threshold for pass (typically 1.0 for deterministic methods)
+      trace_count_rules:
+        type: object
+        description: For method=trace_count — assertions on tool-call counts in trace
+        properties:
+          max_total_tool_calls:    {type: integer}
+          min_total_tool_calls:    {type: integer}
+          max_per_tool_calls:      {type: object, additionalProperties: {type: integer}}
+          unique_tools_called:     {type: array, items: {type: string}}
+          expected_args_seen:      {type: array, items: {type: string}}
+          forbidden_tools:         {type: array, items: {type: string}}
+      trace_invariant_rules:
+        type: object
+        description: For method=trace_invariant — structural assertions
+        properties:
+          no_calls_after_persistent_error: {type: boolean}
+          parallel_calls_when_possible:    {type: boolean}
+          no_self_referential_loop:        {type: boolean}
+          max_total_steps:                 {type: integer}
+
+  notes:
+    type: string
+    description: Internal notes for the customer about why this case matters
+
+  references:
+    type: array
+    items: {type: string}
+    description: Citations to relevant research / incident reports / standards (e.g. OWASP LLM Top 10)
