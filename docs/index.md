@@ -1,16 +1,27 @@
 ---
 layout: default
-title: "AI Agent QA Guides — test the silent failures of tool-using LLM agents"
-description: "Deterministic eval guides for LangChain, OpenAI, Anthropic, CrewAI, LangGraph & RAG agents — OWASP Agentic Top 10 aligned."
+title: "Deterministic, CI-native eval for tool-using LLM agents (no LLM-as-judge)"
+description: "Free, deterministic, OWASP-Agentic-aligned eval for tool-using LLM agents. A reproducible pass/fail CI gate — not another observability platform."
 ---
 
-# AI Agent QA Guides
+# Deterministic agent eval that gates CI — no LLM-as-judge
 
-Practical, framework-native guides for catching the *silent* failure modes of tool-using LLM agents — wrong tool selection, hallucinated tool results, prompt injection, excessive agency, cost runaway, memory poisoning. Each maps to the OWASP Top 10 for Agentic Applications and ends with a one-command check.
+A **free**, **deterministic** eval pack + runner for tool-using LLM agents. The pass/fail is computed by pure logic (keywords, regex, refusal detection, tool-call trace invariants) — **not** by asking a second LLM. So the gate is **reproducible and defensible** in a PR review, **OWASP Agentic Top 10 aligned**, and drops into CI in one line. It's a pass/fail gate, not another observability platform.
 
-Gate them all in CI with the [agent-eval-runner](https://pypi.org/project/agent-eval-runner/) or the [GitHub Action](https://github.com/weiseer/agent-eval-action).
+```bash
+pip install "agent-eval-runner[openai]"
+agent-eval try --model openai:gpt-4o
+```
 
-## Guides
+Runner on [PyPI](https://pypi.org/project/agent-eval-runner/) · [GitHub Action](https://github.com/weiseer/agent-eval-action) · [free starter repo]() · [full 28-case pack](https://weiseer.gumroad.com/l/dcipxt)
+
+## Start here
+
+- [Deterministic LLM agent evaluation without LLM-as-judge](guides/deterministic-llm-agent-eval-without-llm-as-judge.html)
+- [How to gate an AI agent in CI with a free GitHub Action (OWASP-Agentic-aligned)](guides/gate-ai-agent-in-ci-github-action-owasp.html)
+- [A free, deterministic alternative to hosted LLM-eval platforms for CI gating](guides/free-deterministic-alternative-hosted-llm-eval-ci.html)
+
+## More guides — failure modes by framework
 
 - [How to test when a custom agent loop fails OWASP Agentic Top 10 memory & data poisoning](guides/a-custom-agent-loop-fails-owasp-agentic-top-10-memory-data-poisoning.html)
 - [How to test when an AI agent should refuse but complies under a justification frame](guides/an-ai-agent-should-refuse-but-complies-under-a-justification-frame.html)

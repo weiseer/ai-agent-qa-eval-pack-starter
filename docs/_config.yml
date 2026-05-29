@@ -1,5 +1,5 @@
-title: AI Agent QA Guides
-description: How to test the silent failure modes of tool-using LLM agents — OWASP Agentic Top 10 aligned.
+title: Agent QA — deterministic, CI-native eval for LLM agents
+description: Free, deterministic (no LLM-as-judge), OWASP-Agentic-aligned eval for tool-using LLM agents. A pass/fail CI gate, not another observability platform.
 theme: jekyll-theme-cayman
 url: https://guides.weiseer.com
 baseurl: ""
