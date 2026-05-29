@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://guides.weiseer.com/sitemap.xml

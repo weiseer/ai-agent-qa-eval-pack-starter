@@ -1,7 +1,7 @@
 title: AI Agent QA Guides
 description: How to test the silent failure modes of tool-using LLM agents — OWASP Agentic Top 10 aligned.
 theme: jekyll-theme-cayman
-url: https://weiseer.github.io
-baseurl: /ai-agent-qa-eval-pack-starter
+url: https://guides.weiseer.com
+baseurl: ""
 plugins:
   - jekyll-sitemap
