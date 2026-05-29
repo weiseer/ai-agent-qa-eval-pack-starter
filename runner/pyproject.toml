@@ -1,6 +1,6 @@
 [project]
 name = "agent-eval-runner"
-version = "0.3.0"
+version = "0.3.1"
 description = "Run the AI Agent QA Eval Pack against your tool-using LLM agent + grade it with a shareable scorecard badge. Deterministic, OWASP Agentic Top 10 aligned, no LLM-judge."
 readme = "README.md"
 requires-python = ">=3.9"

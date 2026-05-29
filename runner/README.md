@@ -4,22 +4,18 @@ Run the **AI Agent QA Eval Pack** (vendor-agnostic YAML eval cases) against your
 tool-using LLM agent. **Deterministic** checks — no LLM-as-judge — so the report
 is defensible for production sign-off. Cross-platform (pure Python: Win / macOS / Linux).
 
-## Install
+## See your agent break in one command (zero config)
 
 ```bash
-pip install agent-eval-runner            # core
-pip install "agent-eval-runner[openai]"  # + built-in OpenAI demo adapter
-pip install "agent-eval-runner[anthropic]"
-```
-
-## 30-second demo (no code)
-
-Run text-based cases straight against a model:
-
-```bash
+pip install "agent-eval-runner[openai]"
 export OPENAI_API_KEY=sk-...
-agent-eval run --cases ./cases --adapter openai:gpt-4o --dimension safety
+agent-eval try --model openai:gpt-4o
 ```
+
+**No clone, no setup, no adapter** — 5 OWASP-Agentic-aligned cases ship inside the
+package. `try` runs them against your model and shows you exactly how your agent
+breaks. (For Claude: `pip install "agent-eval-runner[anthropic]"` +
+`agent-eval try --model anthropic:claude-sonnet-4-6`.)
 
 ## Real usage (all 5 case types, incl. tool-trace assertions)
 

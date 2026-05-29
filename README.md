@@ -12,19 +12,24 @@ Drop your email (no spam, just new eval cases): **https://dl.weiseer.com/cases**
 
 ---
 
-## Run all 5 in one command
+## See your agent break in one command
 
 ```bash
-pip install agent-eval-runner
-# zero-code demo (text cases) against a model:
-agent-eval run --cases ./cases --adapter openai:gpt-4o
-# or against YOUR agent (10-line adapter, all case types incl. tool-trace):
+pip install "agent-eval-runner[openai]"
+export OPENAI_API_KEY=sk-...
+agent-eval try --model openai:gpt-4o
+```
+
+**No clone, no setup, no adapter** — 5 OWASP-Agentic-aligned cases ship inside
+the package; `try` runs them against your model and shows you exactly how your
+agent breaks. Deterministic (no LLM-judge). For your real agent (all case types
++ tool-trace, CI-ready non-zero exit on high-severity failure):
+
+```bash
 agent-eval run --cases ./cases --adapter my_module:agent --report signoff.md
 ```
 
-Deterministic checks (no LLM-judge). **Non-zero exit on any high-severity
-failure → drop it straight into CI.** The `agent-eval` runner ships in this
-repo (`runner/`) and on [PyPI](https://pypi.org/project/agent-eval-runner/).
+Runner: on [PyPI](https://pypi.org/project/agent-eval-runner/) + `runner/` in this repo.
 
 ---
 
